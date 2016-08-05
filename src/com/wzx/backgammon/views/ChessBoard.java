@@ -1,11 +1,14 @@
 package com.wzx.backgammon.views;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.wzx.backgammon.R;
 import com.wzx.backgammon.utils.AppUtil;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -39,10 +42,12 @@ public class ChessBoard extends View {
 	public ChessBoard(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// TODO Auto-generated constructor stub
+		inital();
 	}
 	public ChessBoard(Context context) {
 		super(context);
 		// TODO Auto-generated constructor stub
+		inital();
 	}
 	
 	private void inital(){
@@ -89,6 +94,8 @@ public class ChessBoard extends View {
 	}
 	
 	
+	
+	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// TODO Auto-generated method stub
@@ -124,7 +131,105 @@ public class ChessBoard extends View {
 		}
 	}
 	
-	
+	public boolean GetGameResult() {
+        return IsGameOver;
+    }
+
+    public int GetPieceSize() {
+        if (WhitePoint.size() == 0 && BlackPoint.size() == 0) {
+            return 0;
+        }
+        return 1;
+    }
+
+    private boolean checkNoWin(boolean whiteWin, boolean blackWin) {
+        if (whiteWin || blackWin) {
+            return false;
+        }
+        int max = MAX_LINE * MAX_LINE;
+        //如果白棋和黑棋的总数等于棋盘格子数,说明和棋
+        if (WhitePoint.size() + BlackPoint.size() == max) {
+            return true;
+        }
+        return false;
+    }
+
+    //重新开始
+    public void restart() {
+        WhitePoint.clear();
+        BlackPoint.clear();
+        IsGameOver = false;
+        IsWhite=true;
+        invalidate();
+    }
+
+    //悔棋
+    public void regret() {
+        if (BlackPoint.size() > 0 || WhitePoint.size() > 0) {
+            if (IsWhite) {
+                BlackPoint.remove(BlackPoint.size() - 1);
+                IsWhite = !IsWhite;
+            } else {
+                WhitePoint.remove(WhitePoint.size() - 1);
+                IsWhite = !IsWhite;
+            }
+            invalidate();
+        }
+    }
+    
+    
+    //游戏是否结束
+    private void IsGameOver() {
+        boolean WhiteWin = checkFiveInLine(WhitePoint);
+        boolean BlackWin = checkFiveInLine(BlackPoint);
+        boolean NoWin = checkNoWin(WhiteWin, BlackWin);
+//        if (WhiteWin) {
+//            IsGameOver = true;
+//            Dialog("白棋获胜！");
+//        } else if (BlackWin) {
+//            IsGameOver = true;
+//            Dialog("黑棋获胜");
+//        } else if (NoWin) {
+//            IsGameOver = true;
+//            Dialog("针锋相对，和棋了！");
+//        }
+    }
+    
+    private boolean checkFiveInLine(List<Point> point) {
+        for (Point p : point) {
+            int x = p.x;
+            int y = p.y;
+//
+//            boolean checkHorizontal = checkHorizontalFiveInLine(x, y, point);
+//            boolean checkVertical = checkVerticalFiveInLine(x, y, point);
+//            boolean checkLeftDiagonal = checkLeftFiveInLine(x, y, point);
+//            boolean checkRightDiagonal = checkRightFiveInLine(x, y, point);
+//            if (checkHorizontal || checkVertical || checkLeftDiagonal || checkRightDiagonal) {
+//                return true;
+//            }
+        }
+
+        return false;
+    }
 	
 
+    
+    
+  //横向五子连珠
+    private boolean checkHorizontalFiveInLine(int x, int y, List<Point> point) {
+        int count = 1;
+        for (int i = 1; i < FIVE_POINT; i++) {
+            if (point.contains(new Point(x - i, y))) {
+                count++;
+            } else {
+                break;
+            }
+        }
+        if (count == FIVE_POINT) {
+            return true;
+        }
+        return false;
+    }
+    
+  
 }
