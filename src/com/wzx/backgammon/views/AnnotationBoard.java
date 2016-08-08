@@ -71,6 +71,7 @@ public class AnnotationBoard extends View {
 	
 	protected  void init(){
 		this.annotationPaint=new Paint(Paint.ANTI_ALIAS_FLAG);
+		
 	}
 	
 	

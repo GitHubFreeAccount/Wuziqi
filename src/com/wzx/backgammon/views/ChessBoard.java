@@ -16,10 +16,17 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Point;
+import android.nfc.Tag;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
+/**
+ * @author sdt13151
+ *  åŒäººå¯¹æˆ˜
+ */
 public class ChessBoard extends View {
+	private String TAG="ChessBoard";
 	private Paint paint;
 	private int PanelWidth;
     private static final int MAX_LINE = 15;
@@ -30,6 +37,7 @@ public class ChessBoard extends View {
     private boolean IsWhite = true;
     private ArrayList<Point> WhitePoint = new ArrayList<>();
     private ArrayList<Point> BlackPoint = new ArrayList<>();
+    private ArrayList<Point> Picece=new ArrayList<Point>();
     private static final int FIVE_POINT = 5;
     private boolean IsGameOver = false;
 
@@ -37,6 +45,7 @@ public class ChessBoard extends View {
 		super(context, attrs, defStyleAttr);
 		// TODO Auto-generated constructor stub
 		inital();
+		
 	}
 	
 	public ChessBoard(Context context, AttributeSet attrs) {
@@ -65,55 +74,66 @@ public class ChessBoard extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		// TODO Auto-generated method stub
+		Log.e(TAG, "onMeasure");
            int widthSize=MeasureSpec.getSize(widthMeasureSpec);
 		   int widthMode=MeasureSpec.getMode(widthMeasureSpec);
 		   
 		   int heightSize=MeasureSpec.getSize(heightMeasureSpec);
 		   int heigitMode=MeasureSpec.getMode(heightMeasureSpec);
 		   int width=Math.min(widthSize, heightSize);
-		    //AT_MOST:specSize ´ú±íµÄÊÇ×î´ó¿É»ñµÃµÄ¿Õ¼ä£»
-	        //EXACTLY:specSize ´ú±íµÄÊÇ¾«È·µÄ³ß´ç£»
-	        //UNSPECIFIED:¶ÔÓÚ¿Ø¼ş³ß´çÀ´Ëµ£¬Ã»ÓĞÈÎºÎ²Î¿¼ÒâÒå¡£
-	        //½â¾öÇ¶Ì×ÔÚScrollViewÖĞÊ±µÈÇé¿ö³öÏÖµÄÎÊÌâ
+		   //AT_MOST:specSize ä»£è¡¨çš„æ˜¯æœ€å¤§å¯è·å¾—çš„ç©ºé—´ï¼›
+	        //EXACTLY:specSize ä»£è¡¨çš„æ˜¯ç²¾ç¡®çš„å°ºå¯¸ï¼›
+	        //UNSPECIFIED:å¯¹äºæ§ä»¶å°ºå¯¸æ¥è¯´ï¼Œæ²¡æœ‰ä»»ä½•å‚è€ƒæ„ä¹‰ã€‚
+	        //è§£å†³åµŒå¥—åœ¨ScrollViewä¸­æ—¶ç­‰æƒ…å†µå‡ºç°çš„é—®é¢˜
 		   if(widthMode==MeasureSpec.UNSPECIFIED){
 			   width=heightSize;
 		   }else if(heigitMode==MeasureSpec.UNSPECIFIED){
 			   width=widthSize;
-		   }
+		   }		  
 		   setMeasuredDimension(width, width);
 	}
 	
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		// TODO Auto-generated method stub
+		Log.e(TAG, "onSizeChanged");
 		PanelWidth=w;
 		SingelHeight=PanelWidth*1.0f/MAX_LINE;
 		int onlyWidth=(int)(SingelHeight*Size);
 		WhiteBitmap=Bitmap.createScaledBitmap(WhiteBitmap, onlyWidth, onlyWidth, false);
-		BlackBitmap=Bitmap.createScaledBitmap(BlackBitmap, onlyWidth, onlyWidth, false);
+		BlackBitmap=Bitmap.createScaledBitmap(BlackBitmap, onlyWidth, onlyWidth, false);		
 	}
-	
-	
 	
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// TODO Auto-generated method stub
 		super.onDraw(canvas);
+		canvas.drawColor(Color.parseColor("#DEB887"));
+		canvas.save();		
 		DrawBoard(canvas);
 		DrawPiece(canvas);
+		canvas.restore();
 	}
 	
+	/**
+	 * wuzhouxing 2016å¹´8æœˆ8æ—¥ä¸‹åˆ4:21:45
+	 * ç”»æ£‹ç›˜
+	 */
 	private void DrawBoard(Canvas canvas){
 		for (int i = 0; i <MAX_LINE; i++) {
 			int startX=(int)SingelHeight/2;
 			int endX=(int)(PanelWidth-SingelHeight/2);
-			int y=(int)((0.5+i)*SingelHeight);
-			canvas.drawLine(startX, y, endX, y, paint);
-			canvas.drawLine(y, startX, y, endX, paint);
+			int y=(int)((0.5+i)*SingelHeight);	
+			canvas.drawLine(startX, y, endX, y, paint);  //ç”»æ¨ªçº¿
+			canvas.drawLine(y, startX, y, endX, paint);  //ç”»ç«–çº¿
 		}
 	}
 	
+	/**
+	 * wuzhouxing 2016å¹´8æœˆ8æ—¥ä¸‹åˆ4:21:21
+	 * ç”»æ£‹å­
+	 */
 	private void DrawPiece(Canvas canvas){
 		for (int i = 0; i < WhitePoint.size(); i++) {
 			Point whitePoint=WhitePoint.get(i);
@@ -142,19 +162,23 @@ public class ChessBoard extends View {
         return 1;
     }
 
+    /**
+     * wuzhouxing 2016å¹´8æœˆ8æ—¥ä¸‹åˆ4:18:39
+     * éƒ½æ²¡èµ¢ æ˜¯æ ¼å­å¡«æ»¡ï¼Ÿ
+     */
     private boolean checkNoWin(boolean whiteWin, boolean blackWin) {
         if (whiteWin || blackWin) {
             return false;
         }
         int max = MAX_LINE * MAX_LINE;
-        //Èç¹û°×ÆåºÍºÚÆåµÄ×ÜÊıµÈÓÚÆåÅÌ¸ñ×ÓÊı,ËµÃ÷ºÍÆå
+
         if (WhitePoint.size() + BlackPoint.size() == max) {
             return true;
         }
         return false;
     }
 
-    //ÖØĞÂ¿ªÊ¼
+    //é‡æ–°å¼€å§‹
     public void restart() {
         WhitePoint.clear();
         BlackPoint.clear();
@@ -163,7 +187,7 @@ public class ChessBoard extends View {
         invalidate();
     }
 
-    //»ÚÆå
+    //æ‚”æ£‹
     public void regret() {
         if (BlackPoint.size() > 0 || WhitePoint.size() > 0) {
             if (IsWhite) {
@@ -178,44 +202,91 @@ public class ChessBoard extends View {
     }
     
     
-    //ÓÎÏ·ÊÇ·ñ½áÊø
+    //æ¸¸æˆæ˜¯å¦ç»“æŸ
     private void IsGameOver() {
         boolean WhiteWin = checkFiveInLine(WhitePoint);
         boolean BlackWin = checkFiveInLine(BlackPoint);
         boolean NoWin = checkNoWin(WhiteWin, BlackWin);
-//        if (WhiteWin) {
-//            IsGameOver = true;
-//            Dialog("°×Æå»ñÊ¤£¡");
-//        } else if (BlackWin) {
-//            IsGameOver = true;
-//            Dialog("ºÚÆå»ñÊ¤");
-//        } else if (NoWin) {
-//            IsGameOver = true;
-//            Dialog("Õë·æÏà¶Ô£¬ºÍÆåÁË£¡");
-//        }
+        if (WhiteWin) {
+            IsGameOver = true;
+        } else if (BlackWin) {
+            IsGameOver = true;
+        } else if (NoWin) {
+            IsGameOver = true;
+        }
     }
     
+    /**
+     * wuzhouxing 2016å¹´8æœˆ8æ—¥ä¸‹åˆ4:13:10
+     * åˆ¤æ–­äº”å­æ˜¯å¦ç›¸è¿
+     */
     private boolean checkFiveInLine(List<Point> point) {
         for (Point p : point) {
             int x = p.x;
             int y = p.y;
-//
-//            boolean checkHorizontal = checkHorizontalFiveInLine(x, y, point);
-//            boolean checkVertical = checkVerticalFiveInLine(x, y, point);
-//            boolean checkLeftDiagonal = checkLeftFiveInLine(x, y, point);
-//            boolean checkRightDiagonal = checkRightFiveInLine(x, y, point);
-//            if (checkHorizontal || checkVertical || checkLeftDiagonal || checkRightDiagonal) {
-//                return true;
-//            }
+
+            boolean checkHorizontal = checkHorizontalFiveInLine(x, y, point);
+            boolean checkVertical = checkVerticalFiveInLine(x, y, point);
+            boolean checkLeftDiagonal = checkLeftFiveInLine(x, y, point);
+            boolean checkRightDiagonal = checkRightFiveInLine(x, y, point);
+            if (checkHorizontal || checkVertical || checkLeftDiagonal || checkRightDiagonal) {
+                return true;
+            }
         }
 
         return false;
     }
+    
+    
+    
+    /**
+     * wuzhouxing 2016å¹´8æœˆ8æ—¥ä¸‹åˆ4:13:54
+     * å‘å³æ–œ
+     */
+    private boolean checkRightFiveInLine(int x,int y,List<Point> point){
+    	int count=1;
+    	  if (count == FIVE_POINT) {
+              return true;
+          }
+          return false;
+    }
+    
+    /**
+     * wuzhouxing 2016å¹´8æœˆ8æ—¥ä¸‹åˆ4:14:03
+     * å‘å·¦æ–œ
+     */
+    private boolean checkLeftFiveInLine(int x,int y,List<Point> point){
+    	int count=1;
+    	
+    	  if (count == FIVE_POINT) {
+              return true;
+          }
+          return false;
+    }
 	
+    /**
+     * wuzhouxing 2016å¹´8æœˆ8æ—¥ä¸‹åˆ4:14:12
+     * æ°´å¹³æ–¹å‘
+     */
+    private boolean checkVerticalFiveInLine(int x,int y,List<Point> point){
+    	int count=1;
+    	for (int i = 0; i < FIVE_POINT; i++) {
+			if(point.contains(new Point(x, y+i))){
+				
+			}
+		}
+    	  if (count == FIVE_POINT) {
+              return true;
+          }
+          return false;
+    }
+    
+    
 
-    
-    
-  //ºáÏòÎå×ÓÁ¬Öé
+    /**
+     * horizontal five in line
+     * wuzhouxing 2016å¹´8æœˆ8æ—¥ä¸‹åˆ2:02:56
+     */
     private boolean checkHorizontalFiveInLine(int x, int y, List<Point> point) {
         int count = 1;
         for (int i = 1; i < FIVE_POINT; i++) {
@@ -225,6 +296,7 @@ public class ChessBoard extends View {
                 break;
             }
         }
+        
         if (count == FIVE_POINT) {
             return true;
         }
